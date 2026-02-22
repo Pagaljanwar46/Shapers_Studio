@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nivora - 60fps Mobile Optimized</title>
+    <title>Shapers | studio of clothing</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -16,7 +16,27 @@
             --font-main: 'Inter', sans-serif;
         }
 
-        html, body { overscroll-behavior-y: none; }
+        /* --- Smooth Scroll Base CSS (Lenis) --- */
+        html.lenis, html.lenis body {
+            height: auto;
+        }
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+        .lenis.lenis-scrolling iframe {
+            pointer-events: none;
+        }
+
+        html, body { 
+            overscroll-behavior-y: none; 
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
 
         body {
@@ -32,20 +52,43 @@
             width: 12px; height: 12px; background-color: var(--text-dark);
             border-radius: 50%; position: fixed; top: 0; left: 0;
             pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            transition: width 0.2s, height 0.2s, background-color 0.2s, border 0.2s;
             display: flex; align-items: center; justify-content: center;
             font-size: 10px; font-weight: 700; color: var(--bg-cream); text-transform: uppercase;
             will-change: transform;
         }
 
-        /* --- Navbar --- */
+        /* --- Navbar & Shop Button --- */
         .navbar {
             position: fixed; top: 0; width: 100%; padding: 2rem 3rem;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 1000;
         }
         .logo { font-weight: 900; letter-spacing: 2px; font-size: 1.2rem; }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
         .datetime { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        
+        .shop-btn {
+            background-color: transparent;
+            color: var(--text-dark);
+            border: 1px solid var(--text-dark);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .shop-btn:hover {
+            background-color: var(--text-dark);
+            color: var(--bg-cream);
+        }
 
         /* --- 1. Storytelling Hero --- */
         .hero-spacer { height: 250dvh; width: 100%; }
@@ -95,6 +138,28 @@
         .section-title-fixed { position: absolute; top: 12%; left: 5%; z-index: 10; }
         .section-title-fixed h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; font-weight: 700; }
         .section-title-fixed h2 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -1px; }
+        
+        /* New View All Button Styles */
+        .view-all-btn {
+            display: inline-block;
+            margin-top: 1.5rem;
+            background-color: transparent;
+            color: var(--text-dark);
+            border: 1px solid var(--text-dark);
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        .view-all-btn:hover {
+            background-color: var(--text-dark);
+            color: var(--bg-cream);
+        }
+
         .product-card { width: 35vw; height: 60dvh; background: #ffffff; border-radius: 12px; flex-shrink: 0; overflow: hidden; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.05); }
         .product-card img { width: 100%; height: 80%; object-fit: cover; transition: transform 0.5s; filter: grayscale(20%); }
         .product-card:hover img { transform: scale(1.05); filter: grayscale(0%); }
@@ -126,59 +191,29 @@
         .projects-image-container img.active { opacity: 1; }
         .view-btn { position: absolute; bottom: 2rem; right: 2rem; background: var(--text-dark); color: var(--bg-cream); padding: 0.8rem 1.5rem; font-weight: 700; border-radius: 50px; font-size: 0.8rem; z-index: 5; }
 
-        /* --- Footer (ULTIMATE MOBILE FIX) --- */
+        /* --- Footer --- */
         .footer {
             position: relative;
             z-index: 20; 
             background: var(--bg-cream-alt); 
             color: var(--text-dark);
-            /* Standard padding for desktop */
             padding: 8vh 5vw 2vh 5vw; 
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: auto 1fr auto; 
             gap: 4vh;
             min-height: 100dvh; 
-            overflow: hidden; /* Prevent text from causing horizontal scroll */
-        }
-        
-        .footer-header {
-            font-size: clamp(1.5rem, 4vw, 2.5rem); 
-            font-weight: 500;
-        }
-
-        .footer-image-container {
-            width: 100%;
-            /* Flex-grow allows the image to take up remaining space naturally */
-            flex-grow: 1; 
-            border-radius: 12px;
             overflow: hidden;
-            background: #e0dcd2;
         }
-        
-        .footer-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+        .footer-header { font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 500; }
+        .footer-image-container {
+            width: 100%; max-width: 800px; height: 450px; margin: 3vh auto; 
+            border-radius: 12px; overflow: hidden; background: #e0dcd2;
         }
-
-        .footer-text-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end; /* Pushes text to the very bottom */
-            width: 100%;
-        }
-
+        .footer-image-container img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .footer-text-wrapper { display: flex; justify-content: center; align-items: flex-end; width: 100%; }
         .footer-giant-text { 
-            /* Clamp ensures it gets huge, but never exceeds 90% of screen width */
-            font-size: clamp(4rem, 18vw, 25rem); 
-            font-weight: 900; 
-            /* Normal line-height prevents cutting off the bottom of the letters */
-            line-height: 1; 
-            letter-spacing: -0.05em; 
-            text-align: center; 
-            margin: 0;
-            padding: 0;
+            font-size: clamp(4rem, 18vw, 25rem); font-weight: 900; line-height: 1; 
+            letter-spacing: -0.05em; text-align: center; margin: 0; padding: 0;
         }
 
         /* ==========================================================================
@@ -188,7 +223,12 @@
             * { cursor: auto !important; }
             .cursor { display: none !important; }
             .navbar { padding: 1.5rem; }
+            
+            /* Hide datetime but keep the shop button visible */
             .datetime { display: none; } 
+            .nav-right { gap: 0; }
+            .shop-btn { padding: 0.5rem 1.2rem; font-size: 0.75rem; }
+
             .hero-spacer { height: 250dvh; } 
             .horizontal-container { padding-top: 22dvh; gap: 5vw; align-items: flex-start; }
             .product-card { width: 85vw; height: 50dvh; } 
@@ -198,21 +238,18 @@
             .project-item { transform-origin: center center; } 
             .projects-image-container { width: 100%; height: 40dvh; }
             .view-btn { bottom: 1rem; right: 1rem; padding: 0.6rem 1.2rem; }
-
-            /* --- Footer Mobile Overrides --- */
             .footer {
-                /* Remove min-height on mobile so it fits the screen exactly */
                 min-height: calc(100dvh - env(safe-area-inset-bottom));
-                /* Adjust padding to account for the iOS home bar */
-                padding: 10vh 5vw calc(2vh + env(safe-area-inset-bottom)) 5vw;
-                gap: 2vh;
+                padding: 10vh 5vw calc(2vh + env(safe-area-inset-bottom)) 5vw; gap: 2vh;
             }
-            .footer-header {
-                text-align: center;
-            }
-            .footer-image-container {
-                /* Set a specific max-height so it leaves room for the text */
-                max-height: 40vh; 
+            .footer-header { text-align: center; }
+            .footer-image-container { height: 35vh; margin: 2vh 0; }
+            
+            /* View All Button Mobile Tweaks */
+            .view-all-btn {
+                margin-top: 1rem;
+                padding: 0.5rem 1.2rem;
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -222,8 +259,11 @@
     <div class="cursor" id="custom-cursor"></div>
 
     <nav class="navbar">
-        <div class="logo">NIVORA</div>
-        <div class="datetime" id="datetime">Loading...</div>
+        <div class="logo">SHAPERS</div>
+        <div class="nav-right">
+            <div class="datetime" id="datetime">Loading...</div>
+            <a href="shop.html" class="shop-btn">SHOP</a>
+        </div>
     </nav>
 
     <div class="hero-spacer"></div>
@@ -231,7 +271,7 @@
     <header class="hero" id="hero">
         <div class="hero-bg" id="hero-bg"></div>
         <div class="hero-content">
-            <div class="text-mask"><p class="hero-subtitle load-reveal">MADE IN FRAMER</p></div>
+            <div class="text-mask"><p class="hero-subtitle load-reveal">MADE IN ONEDEV</p></div>
             <h1 class="hero-title" id="hero-title">DESIGN<br>FOR<br>EVERYONE</h1>
             <div class="text-mask"><p class="hero-subtitle load-reveal">BEAUTIFULLY CRAFTED EXPERIENCES</p></div>
         </div>
@@ -248,24 +288,50 @@
         <section class="horizontal-wrapper" id="horizontal-wrapper">
             <div class="section-title-fixed">
                 <h3>Gallery</h3>
-                <h2>PHYSICAL PRODUCTS</h2>
+                <h2>HOT PRODUCTS</h2>
+                <a href="#" class="view-all-btn">VIEW ALL</a>
             </div>
             <div class="horizontal-container" id="horizontal-container">
                 <div class="product-card interact-view">
-                    <img src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=800&q=80">
+                    <img src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=800&q=80" alt="Radio">
                     <div class="product-info"><h4>RADIO</h4><p>Audio Device</p></div>
                 </div>
                 <div class="product-card interact-view">
-                    <img src="https://images.unsplash.com/photo-1603732551658-5fabbafa84eb?auto=format&fit=crop&w=800&q=80">
+                    <img src="https://images.unsplash.com/photo-1603732551658-5fabbafa84eb?auto=format&fit=crop&w=800&q=80" alt="Knobs">
                     <div class="product-info"><h4>KNOBS</h4><p>Hardware</p></div>
                 </div>
                 <div class="product-card interact-view">
-                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80" alt="Camera">
                     <div class="product-info"><h4>CAMERA</h4><p>Imaging Device</p></div>
                 </div>
                 <div class="product-card interact-view">
-                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80">
+                    <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80" alt="Wristwatch">
                     <div class="product-info"><h4>WRISTWATCH</h4><p>Hardware</p></div>
+                </div>
+
+                <div class="product-card interact-view">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" alt="Headphones">
+                    <div class="product-info"><h4>HEADPHONES</h4><p>Audio Device</p></div>
+                </div>
+                <div class="product-card interact-view">
+                    <img src="https://images.unsplash.com/photo-1506459225024-1428097a7e18?auto=format&fit=crop&w=800&q=80" alt="Chair">
+                    <div class="product-info"><h4>CHAIR</h4><p>Furniture</p></div>
+                </div>
+                <div class="product-card interact-view">
+                    <img src="https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=800&q=80" alt="Lamp">
+                    <div class="product-info"><h4>LAMP</h4><p>Lighting</p></div>
+                </div>
+                <div class="product-card interact-view">
+                    <img src="https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=800&q=80" alt="Keyboard">
+                    <div class="product-info"><h4>KEYBOARD</h4><p>Accessory</p></div>
+                </div>
+                <div class="product-card interact-view">
+                    <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80" alt="Sunglasses">
+                    <div class="product-info"><h4>SUNGLASSES</h4><p>Eyewear</p></div>
+                </div>
+                <div class="product-card interact-view">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80" alt="Sneakers">
+                    <div class="product-info"><h4>SNEAKERS</h4><p>Footwear</p></div>
                 </div>
             </div>
         </section>
@@ -274,12 +340,12 @@
             <div class="projects-layout">
                 <div class="projects-list-container" id="list-container">
                     <div class="projects-list" id="projects-list">
-                        <div class="project-item active">Grido</div>
-                        <div class="project-item">Stickify</div>
-                        <div class="project-item">Agentify</div>
-                        <div class="project-item">Brandora</div>
-                        <div class="project-item">Codify</div>
-                        <div class="project-item">StudyFlow</div>
+                        <div class="project-item active">Frock</div>
+                        <div class="project-item">Grown</div>
+                        <div class="project-item">Pavada</div>
+                        <div class="project-item">Blouses</div>
+                        <div class="project-item">Salwar set</div>
+                        <div class="project-item">Bridal blouses</div>
                     </div>
                 </div>
                 <div class="projects-image-container interact-view">
@@ -295,14 +361,12 @@
         </section>
 
         <footer class="footer">
-            <div class="footer-header">Let's work together. <br>hello@nivora.com</div>
-            
+            <div class="footer-header">Let's work together. <a href="mailto:hello@shapers.com" style="color: black; text-decoration: none;">hello@shapers.com</a>
             <div class="footer-image-container interact-view">
                 <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=1200&q=80" alt="Footer Image">
             </div>
-
             <div class="footer-text-wrapper">
-                <h1 class="footer-giant-text">NIVORA</h1>
+                <h1 class="footer-giant-text">SHAPERS</h1>
             </div>
         </footer>
 
@@ -311,30 +375,68 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/split-type"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.39/dist/lenis.min.js"></script>
 
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        ScrollTrigger.normalizeScroll(true);
+        // ==========================================================================
+        // Initialize Lenis Smooth Scrolling (Butter smooth mouse wheel)
+        // ==========================================================================
+        const lenis = new Lenis({
+            duration: 1.2, 
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+            direction: 'vertical', 
+            gestureDirection: 'vertical', 
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false, 
+            touchMultiplier: 2,
+            infinite: false,
+        })
+
+        lenis.on('scroll', ScrollTrigger.update)
+
+        gsap.ticker.add((time)=>{
+            lenis.raf(time * 1000)
+        })
+        gsap.ticker.lagSmoothing(0)
+        
         ScrollTrigger.config({ ignoreMobileResize: true });
 
         const isMobile = window.innerWidth <= 768;
 
+        // --- Custom Cursor ---
         const cursor = document.getElementById('custom-cursor');
         document.addEventListener('mousemove', (e) => {
             gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
         });
 
+        // Effect for standard interact view (Image Gallery)
         document.querySelectorAll('.interact-view').forEach(el => {
             el.addEventListener('mouseenter', () => {
                 cursor.innerText = 'VIEW';
-                gsap.to(cursor, { width: 60, height: 60, backgroundColor: "#1A1A1A", color: "#F5F2EB", duration: 0.2 });
+                gsap.to(cursor, { width: 60, height: 60, backgroundColor: "#1A1A1A", color: "#F5F2EB", border: "none", duration: 0.2 });
             });
             el.addEventListener('mouseleave', () => {
                 cursor.innerText = '';
-                gsap.to(cursor, { width: 12, height: 12, backgroundColor: "#1A1A1A", color: "transparent", duration: 0.2 });
+                gsap.to(cursor, { width: 12, height: 12, backgroundColor: "#1A1A1A", color: "transparent", border: "none", duration: 0.2 });
             });
         });
+
+        // Special elegant outline effect for buttons
+        document.querySelectorAll('.shop-btn, .view-all-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                gsap.to(cursor, { width: 45, height: 45, backgroundColor: "transparent", border: "1px solid #1A1A1A", duration: 0.2 });
+            });
+            el.addEventListener('mouseleave', () => {
+                gsap.to(cursor, { width: 12, height: 12, backgroundColor: "#1A1A1A", border: "none", duration: 0.2 });
+            });
+        });
+
+        // ==========================================================================
+        // STORYTELLING HERO ANIMATIONS
+        // ==========================================================================
 
         const heroTitleSplit = new SplitType('#hero-title', { types: 'lines' });
         
@@ -352,6 +454,10 @@
         scrollHeroTl.to("#hero-bg", { scale: isMobile ? 1.6 : 1.4, opacity: 0, ease: "none" }, 0);
         scrollHeroTl.to("#hero-title", { scale: isMobile ? 5 : 4, opacity: 0, ease: "power2.in" }, 0);
         scrollHeroTl.to(".load-reveal", { y: (i) => i === 0 ? -100 : 100, opacity: 0, ease: "power1.inOut" }, 0);
+
+        // ==========================================================================
+        // REST OF THE SITE ANIMATIONS
+        // ==========================================================================
 
         const text = new SplitType('#split-text', { types: 'words' });
         gsap.to(text.words, { color: "#1A1A1A", stagger: 0.1, scrollTrigger: { trigger: "#about", start: "top 80%", end: "center center", scrub: 1 }});
