@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alameda Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #f4f7f6;
+            --sidebar: #111;
+            --accent: #4caf50;
+            --text: #333;
+            --border: #ddd;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Jost', sans-serif; }
+        body { background: var(--bg); color: var(--text); }
+
+        /* --- LOGIN SCREEN --- */
+        #login-view {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 100%; max-width: 400px; text-align: center;
+        }
+        .login-box h2 { margin-bottom: 20px; font-weight: 500; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; margin-bottom: 5px; color: #666; font-weight: 500;}
+        .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-family: 'Jost', sans-serif; }
+        .btn { width: 100%; padding: 12px; background: var(--sidebar); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn:hover { background: #333; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-secondary:hover { background: #ccc; }
+        .error-msg { color: red; font-size: 13px; margin-top: 10px; display: none; }
+
+        /* --- DASHBOARD VIEW --- */
+        #dashboard-view { display: none; min-height: 100vh; }
+        .dashboard-layout { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        aside { width: 250px; background: var(--sidebar); color: #fff; display: flex; flex-direction: column; }
+        .brand { padding: 20px; font-size: 24px; font-weight: 500; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #333; text-align: center; }
+        .nav-links { flex: 1; padding: 20px 0; }
+        .nav-links a { display: block; padding: 15px 20px; color: #aaa; text-decoration: none; transition: 0.3s; border-left: 3px solid transparent; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; background: #222; border-left-color: var(--accent); }
+        .logout-wrap { padding: 20px; border-top: 1px solid #333; }
+        
+        /* Main Content */
+        main { flex: 1; padding: 40px; overflow-y: auto; background: var(--bg); }
+        .content-section { display: none; animation: fadeIn 0.3s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header-top h1 { font-weight: 500; font-size: 24px; }
+        
+        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 30px; }
+        .card h3 { margin-bottom: 20px; font-weight: 500; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        /* Form Grid */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full-width { grid-column: 1 / -1; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 25px; cursor: pointer; }
+        .checkbox-group input { width: 18px; height: 18px; cursor: pointer; }
+
+        /* Product Table */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { font-size: 13px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: 500; }
+        td { font-size: 14px; vertical-align: middle; }
+        .thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete:hover { background: #cc0000; }
+        .btn-edit { background: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-edit:hover { background: #0b7dda; }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #fff; width: 100%; max-width: 600px; border-radius: 8px;
+            padding: 30px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-content h2 { margin-bottom: 20px; font-weight: 500; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+                <div id="login-error" class="error-msg">Invalid credentials.</div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-view">
+        <div class="dashboard-layout">
+            
+            <aside>
+                <div class="brand">Alameda</div>
+                <div class="nav-links">
+                    <a href="#" class="nav-tab active" data-target="section-products">Products</a>
+                    <a href="#" class="nav-tab" data-target="section-profiles">Product Profiles</a>
+                </div>
+                <div class="logout-wrap">
+                    <button id="logout-btn" class="btn" style="background: transparent; border: 1px solid #555;">Logout</button>
+                </div>
+            </aside>
+            
+            <main>
+                <div id="section-products" class="content-section active">
+                    <div class="header-top">
+                        <h1>Manage Products</h1>
+                    </div>
+
+                    <div class="card">
+                        <h3>Add New Product</h3>
+                        <form id="add-product-form">
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label>Product Title (e.g. Lounge Tunic / Black)</label>
+                                    <input type="text" id="p-title" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Categories (e.g. tops sale)</label>
+                                    <input type="text" id="p-category" placeholder="Separate with spaces" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Current Price ($)</label>
+                                    <input type="number" id="p-price" step="0.01" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Original Price ($) - Optional</label>
+                                    <input type="number" id="p-original-price" step="0.01">
+                                </div>
+                                <div class="input-group full-width">
+                                    <label>Main Image URL (Cloudinary)</label>
+                                    <input type="url" id="p-image1" placeholder="https://res.cloudinary.com/..." required>
+                                </div>
+                                <div class="input-group">
+                                    <label class="checkbox-group">
+                                        <input type="checkbox" id="p-sale">
+                                        Product is on sale
+                                    </label>
+                                </div>
+                                <div class="input-group full-width" style="margin-top: 10px;">
+                                    <button type="submit" class="btn" style="background: var(--accent); max-width: 200px;">Save Product</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Current Products</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Price</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-product-list">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="section-profiles" class="content-section">
+                    <div class="header-top">
+                        <h1>Product Profiles</h1>
+                    </div>
+
+                    <div class="card">
+                        <h3>Select a Profile to Edit</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-profile-list">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-content">
+            <h2>Editing: <span id="modal-title-display"></span></h2>
+            <form id="edit-profile-form">
+                <input type="hidden" id="edit-id">
+                
+                <div class="input-group">
+                    <label>Product Description</label>
+                    <textarea id="edit-desc" rows="4" placeholder="Enter full description..."></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>Product Details (Comma Separated)</label>
+                    <input type="text" id="edit-details" placeholder="e.g. 100% Cotton, Machine wash cold, Tumble dry low">
+                </div>
+
+                <div class="input-group">
+                    <label>Gallery Image 1 (Main)</label>
+                    <input type="url" id="edit-img1" required>
+                </div>
+                <div class="input-group">
+                    <label>Gallery Image 2</label>
+                    <input type="url" id="edit-img2">
+                </div>
+                <div class="input-group">
+                    <label>Gallery Image 3</label>
+                    <input type="url" id="edit-img3">
+                </div>
+                <div class="input-group">
+                    <label>Gallery Image 4</label>
+                    <input type="url" id="edit-img4">
+                </div>
+                <div class="input-group">
+                    <label>Gallery Image 5</label>
+                    <input type="url" id="edit-img5">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn" style="background: var(--accent);">Update Profile</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_Fie9L6bhvkPHwvbleyKeMLgd1cEEXy4",
+            authDomain: "shapers-studio.firebaseapp.com",
+            projectId: "shapers-studio",
+            storageBucket: "shapers-studio.firebasestorage.app",
+            messagingSenderId: "1038113921050",
+            appId: "1:1038113921050:web:9901a2b191bbf91e9099a3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- GLOBAL STATE ---
+        let allProducts = [];
+
+        // --- DOM Elements ---
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const addProductForm = document.getElementById('add-product-form');
+        
+        const productListEl = document.getElementById('admin-product-list');
+        const profileListEl = document.getElementById('admin-profile-list');
+
+        const editModal = document.getElementById('edit-modal');
+        const editProfileForm = document.getElementById('edit-profile-form');
+
+        // --- TAB SWITCHING LOGIC ---
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                navTabs.forEach(t => t.classList.remove('active'));
+                contentSections.forEach(s => s.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const targetId = tab.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // --- AUTHENTICATION LOGIC ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginView.style.display = 'none';
+                dashboardView.style.display = 'block';
+                fetchAdminProducts();
+            } else {
+                loginView.style.display = 'flex';
+                dashboardView.style.display = 'none';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                loginError.style.display = 'none';
+                loginForm.reset();
+            } catch (error) {
+                loginError.style.display = 'block';
+                loginError.innerText = error.message;
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+
+        // --- FIRESTORE LOGIC ---
+
+        // 1. Add Product
+        addProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = addProductForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "Saving...";
+            submitBtn.disabled = true;
+
+            const newProduct = {
+                title: document.getElementById('p-title').value,
+                category: document.getElementById('p-category').value.toLowerCase(),
+                price: parseFloat(document.getElementById('p-price').value),
+                originalPrice: parseFloat(document.getElementById('p-original-price').value) || null,
+                imageUrl: document.getElementById('p-image1').value,
+                images: [document.getElementById('p-image1').value], // Initialize array with main image
+                description: "",
+                details: [],
+                isSale: document.getElementById('p-sale').checked
+            };
+
+            try {
+                await addDoc(collection(db, "products"), newProduct);
+                addProductForm.reset();
+                fetchAdminProducts(); 
+                alert("Product added successfully!");
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("Error saving product.");
+            } finally {
+                submitBtn.innerText = "Save Product";
+                submitBtn.disabled = false;
+            }
+        });
+
+        // 2. Fetch Data & Build Both Tables
+        async function fetchAdminProducts() {
+            productListEl.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
+            profileListEl.innerHTML = '<tr><td colspan="3" style="text-align:center;">Loading...</td></tr>';
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                allProducts = [];
+                let productsHtml = '';
+                let profilesHtml = '';
+
+                querySnapshot.forEach((doc) => {
+                    const product = { id: doc.id, ...doc.data() };
+                    allProducts.push(product);
+
+                    productsHtml += `
+                        <tr>
+                            <td><img src="${product.imageUrl}" class="thumb" alt="${product.title}"></td>
+                            <td>${product.title}</td>
+                            <td>$${product.price.toFixed(2)}</td>
+                            <td><span style="background:#eee; padding:3px 8px; border-radius:3px; font-size:11px;">${product.category}</span></td>
+                            <td><button class="btn-delete" onclick="deleteProduct('${product.id}')">Delete</button></td>
+                        </tr>
+                    `;
+
+                    profilesHtml += `
+                        <tr>
+                            <td><img src="${product.imageUrl}" class="thumb" alt="${product.title}"></td>
+                            <td>${product.title}</td>
+                            <td><button class="btn-edit" onclick="openEditModal('${product.id}')">Edit Profile Data</button></td>
+                        </tr>
+                    `;
+                });
+
+                productListEl.innerHTML = productsHtml || '<tr><td colspan="5" style="text-align:center;">No products found.</td></tr>';
+                profileListEl.innerHTML = profilesHtml || '<tr><td colspan="3" style="text-align:center;">No profiles found.</td></tr>';
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        }
+
+        // 3. Delete Product
+        window.deleteProduct = async (id) => {
+            if(confirm("Are you sure you want to delete this product?")) {
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    fetchAdminProducts(); 
+                } catch (error) {
+                    console.error("Error deleting product:", error);
+                }
+            }
+        };
+
+        // --- MODAL LOGIC ---
+
+        // Open Modal and pre-fill data
+        window.openEditModal = (id) => {
+            const product = allProducts.find(p => p.id === id);
+            if(!product) return;
+
+            document.getElementById('edit-id').value = id;
+            document.getElementById('modal-title-display').innerText = product.title;
+            
+            document.getElementById('edit-desc').value = product.description || '';
+            document.getElementById('edit-details').value = (product.details || []).join(', ');
+
+            // Handle up to 5 images array
+            document.getElementById('edit-img1').value = (product.images && product.images[0]) ? product.images[0] : (product.imageUrl || '');
+            document.getElementById('edit-img2').value = (product.images && product.images[1]) ? product.images[1] : '';
+            document.getElementById('edit-img3').value = (product.images && product.images[2]) ? product.images[2] : '';
+            document.getElementById('edit-img4').value = (product.images && product.images[3]) ? product.images[3] : '';
+            document.getElementById('edit-img5').value = (product.images && product.images[4]) ? product.images[4] : '';
+
+            editModal.classList.add('active');
+        };
+
+        // Close Modal
+        window.closeModal = () => {
+            editModal.classList.remove('active');
+            editProfileForm.reset();
+        };
+
+        // Save Profile Edits
+        editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = editProfileForm.querySelector('button[type="submit"]');
+            submitBtn.innerText = "Updating...";
+            submitBtn.disabled = true;
+
+            const id = document.getElementById('edit-id').value;
+            const desc = document.getElementById('edit-desc').value;
+            const detailsRaw = document.getElementById('edit-details').value;
+            const detailsArr = detailsRaw ? detailsRaw.split(',').map(item => item.trim()) : [];
+
+            // Reconstruct images array up to 5
+            const img1 = document.getElementById('edit-img1').value;
+            const img2 = document.getElementById('edit-img2').value;
+            const img3 = document.getElementById('edit-img3').value;
+            const img4 = document.getElementById('edit-img4').value;
+            const img5 = document.getElementById('edit-img5').value;
+            
+            const imageUrls = [img1];
+            if (img2) imageUrls.push(img2);
+            if (img3) imageUrls.push(img3);
+            if (img4) imageUrls.push(img4);
+            if (img5) imageUrls.push(img5);
+
+            try {
+                await updateDoc(doc(db, "products", id), {
+                    description: desc,
+                    details: detailsArr,
+                    images: imageUrls,
+                    imageUrl: img1 // Keep the main image url in sync for the main shop page
+                });
+                closeModal();
+                fetchAdminProducts(); // Refresh tables
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                alert("Failed to update profile.");
+            } finally {
+                submitBtn.innerText = "Update Profile";
+                submitBtn.disabled = false;
+            }
+        });
+
+    </script>
+</body>
+</html>
